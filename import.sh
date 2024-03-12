@@ -1,16 +1,12 @@
 #!/bin/bash
-
 while IFS=";" read -r line; do
-    # Ignore the first line (header) case-insensitively
-    if [ "${line,,}" != "nom;name_alias;ref_ext;code_client;" ]; then
-        # Split the line into fields using the delimiter ';'
+    if [ "$line" != "nom;name_alias;ref_ext;code_client;" ]; then
         IFS=";" read -r nom name_alias ref_ext code_client _ <<< "$line"
 
-        # Use a HERE Document for SQL commands
-        mysql -u dolibarr -p'dolibarr' -h 127.0.0.1 --port=3306 dolibarr <<SQL
+        mysql -u dolibarr -p'dolibarr' -h 127.0.0.1 --port=3306 dolibarr << EOF
         INSERT INTO llx_societe (nom, name_alias, ref_ext, code_client)
         VALUES ('$nom', '$name_alias', '$ref_ext', '$code_client');
-SQL
+EOF
     fi
 done < "CSV/donnees.csv"
 
